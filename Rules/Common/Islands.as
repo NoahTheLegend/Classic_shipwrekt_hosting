@@ -3,8 +3,8 @@
 #include "AccurateSoundPlay.as"
 #include "TileCommon.as"
 
-const f32 VEL_DAMPING = 0.96f;
-const f32 ANGLE_VEL_DAMPING = 0.96;
+const f32 VEL_DAMPING = 0.96f; //0.96
+const f32 ANGLE_VEL_DAMPING = 0.96; //0.96
 const uint FORCE_UPDATE_TICKS = 21;
 f32 UPDATE_DELTA_SMOOTHNESS = 32.0f;//~16-64
 
@@ -435,7 +435,7 @@ void TileCollision( Island@ island, Vec2f tilePos )
 	island.vel = -colvec1*1.0f;
 	
 	//effects
-	int shake = (vellen * island.mass)*0.5f;
+	int shake = (vellen * island.mass + vellen * island.mass)*0.5f;
 	ShakeScreen( shake, 12, tilePos );
 	directionalSoundPlay( shake > 25 ? "WoodHeavyBump" : "WoodLightBump", tilePos );
 }
@@ -529,9 +529,21 @@ void setUpdateSeatsArrays()
 
 void Synchronize( CRules@ this, bool full_sync, CPlayer@ player = null )
 {
-	CBitStream bs;
-	if (Serialize( this, bs, full_sync ))
-		this.SendCommand( full_sync ? this.getCommandID("islands sync") : this.getCommandID("islands update"), bs, player );
+    CBitStream bs;
+    if (Serialize( this, bs, full_sync ))
+    {
+        if (player == @null)
+        {
+            for(u16 i = 0; i < getPlayerCount(); i++)
+            {
+                this.SendCommand( full_sync ? this.getCommandID("islands sync") : this.getCommandID("islands update"), bs, getPlayer(i));
+            }
+        }
+        else
+        {
+            this.SendCommand( full_sync ? this.getCommandID("islands sync") : this.getCommandID("islands update"), bs, player);
+        }
+    }
 }
 
 bool Serialize( CRules@ this, CBitStream@ stream, const bool full_sync )
