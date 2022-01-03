@@ -13,7 +13,7 @@ void onInit(CBlob@ this)
 	this.Tag("bomb");
     this.getCurrentScript().tickFrequency = 60;
 	
-	this.set_u16("cost", 25);
+	this.set_u16("cost", 35);
 	this.set_f32("weight", 1.75f);
 	
 	BlockHooks@ blockHooks;

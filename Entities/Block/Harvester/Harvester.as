@@ -19,7 +19,7 @@ void onInit(CBlob@ this)
 	this.Tag("machinegun");
 	this.Tag("fixed_gun");
 	
-	this.set_u16("cost", 75);
+	this.set_u16("cost", 175);
 	this.set_f32("weight", 2.0f);
 	
 	this.addCommandID("fire");
