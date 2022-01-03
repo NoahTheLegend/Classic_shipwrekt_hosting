@@ -16,7 +16,7 @@ const f32 BULLET_SPREAD = 0.2f;
 const f32 BULLET_SPEED = 9.0f;
 const f32 BULLET_RANGE = 350.0f;
 const u8 BUILD_MENU_COOLDOWN = 30;
-const Vec2f BUILD_MENU_SIZE = Vec2f(5, 5);
+const Vec2f BUILD_MENU_SIZE = Vec2f(7, 3);
 const Vec2f MINI_BUILD_MENU_SIZE = Vec2f(3, 2);
 const Vec2f TOOLS_MENU_SIZE = Vec2f(2, 6);
 Random _shotspreadrandom(0x11598); //clientside
@@ -410,7 +410,7 @@ void PlayerControls(CBlob@ this)
 						{
 							Sound::Play("buttonclick.ogg");
 							this.set_u32("menu time", gameTime);
-							BuildShopMenu(this, core, "", Vec2f(0,0), (pIsle.isStation || pIsle.isSecondaryCore) && !pIsle.isMothership, pIsle.isMiniStation);
+							BuildShopMenu(this, core, "Components", Vec2f(0,0), (pIsle.isStation || pIsle.isSecondaryCore) && !pIsle.isMothership, pIsle.isMiniStation);
 						}
 						else
 							Sound::Play("/Sounds/bone_fall1.ogg");
@@ -473,11 +473,11 @@ void turnToShark(CBlob@ this)
 	}
 }
 
-void BuildShopMenu(CBlob@ this, CBlob@ core, string description, Vec2f offset, bool isStation = false, bool isMiniStation = false)
+void BuildShopMenu(CBlob@ this, CBlob@ core, string desc, Vec2f offset, bool isStation = false, bool isMiniStation = false)
 {
 	CRules@ rules = getRules();
 		
-	CGridMenu@ menu = CreateGridMenu(this.getScreenPos() + offset, core, isMiniStation ? MINI_BUILD_MENU_SIZE : BUILD_MENU_SIZE, description);
+	CGridMenu@ menu = CreateGridMenu(this.getScreenPos() + offset, core, isMiniStation ? MINI_BUILD_MENU_SIZE : BUILD_MENU_SIZE, desc);
 	u32 gameTime = getGameTime();
 	u16 WARMUP_TIME = getPlayersCount() > 1 && !rules.get_bool("freebuild") ? rules.get_u16("warmup_time") : 0;
 	
@@ -488,30 +488,30 @@ void BuildShopMenu(CBlob@ this, CBlob@ core, string description, Vec2f offset, b
 		string description;
 		{ //Seat
 			description = "Use it to control your ship. It can also release and produce Couplings. Breaks on impact.";
-			AddBlock(this, menu, "seat", "$SEAT$", "Seat", description, core, 15, 0.25f);
+			AddBlock(this, menu, "seat", "$SEAT$", "Seat", description, core, 15, 0.5f);
 		}
 		{ //Propeller
 			description = "A ship motor with some armor plating for protection. Reliable and resists flak.";
-			AddBlock(this, menu, "propeller", "$PROPELLER$", "Standard Engine", description, core, 45, 1.0f);
+			AddBlock(this, menu, "propeller", "$PROPELLER$", "Standard Engine", description, core, 50, 1.0f);
 		}
 		{ //Ram Engine
 			description = "An engine that trades protection for extra power. Will break on impact with anything!";
-			AddBlock(this, menu, "ramengine", "$RAMENGINE$", "Ram Engine", description, core, 90, 1.75f);
+			AddBlock(this, menu, "ramengine", "$RAMENGINE$", "Ram Engine", description, core, 75, 1.25f);
 		}
 		{ //Coupling
 			description = "A versatile block used to hold and release other blocks.";
-			AddBlock(this, menu, "coupling", "$COUPLING$", "Coupling", description, core, 1, 0.1f);
+			AddBlock(this, menu, "coupling", "$COUPLING$", "Coupling", description, core, 5, 0.1f);
 		}
 
 		if (!isMiniStation)
 		{
 			{ //Wooden Hull
 				description = "A very tough block for protecting delicate components. Can effectively negate damage from bullets, flak, and to some extent cannons.";
-				AddBlock(this, menu, "solid", "$SOLID$", "Wooden Hull", description, core, 15, 1.0f);
+				AddBlock(this, menu, "solid", "$SOLID$", "Wooden Hull", description, core, 20, 0.75f);
 			}
 			{ //Wooden Platform
 				description = "A good quality wooden floor panel. Get that deck shining.";
-				AddBlock(this, menu, "platform", "$WOOD$", "Wooden Hull", description, core, 5, 0.5f);
+				AddBlock(this, menu, "platform", "$WOOD$", "Wooden Hull", description, core, 5, 0.2f);
 			}
 			{ //Wooden Door
 				description = "A wooden door. Useful for ship security.";
@@ -519,72 +519,64 @@ void BuildShopMenu(CBlob@ this, CBlob@ core, string description, Vec2f offset, b
 			}
 			{ //Harpoon
 				description = "A manual-fire harpoon launcher. Can be used for grabbing, towing, or water skiing!";
-				AddBlock(this, menu, "harpoon", "$HARPOON$", "Harpoon", description, core, 50, 1.0f);
+				AddBlock(this, menu, "harpoon", "$HARPOON$", "Harpoon", description, core, 25, 1.0f);
 			}
 			{ //Harvester
 				description = "An industrial-sized deconstructor that allows you to quickly mine resources from ship debris. Largely ineffective against owned ships.\nAmmoCap: infinite";
-				AddBlock(this, menu, "harvester", "$HARVESTER$", "Harvester", description, core, 75, 2.0f);
+				AddBlock(this, menu, "harvester", "$HARVESTER$", "Harvester", description, core, 175, 2.0f);
 			}
 			{ //Patcher
 				description = "An industrial-sized reconstructor that shoots a green restoration beem through a ship, repairing multiple ship parts concomitantly.\nAmmoCap: infinite";
-				AddBlock(this, menu, "patcher", "$PATCHER$", "Patcher", description, core, 200, 3.0f);
+				AddBlock(this, menu, "patcher", "$PATCHER$", "Patcher", description, core, 50, 3.0f);
 			}
 			{ //Anti Ram Hull
 				description = "An excellent defence against enemy rammers. Can absorb multiple ram components. Partially weaker against gunfire than Wood Hull.";
-				AddBlock(this, menu, "antiram", "$ANTIRAM$", "Anti-Ram Hull", description, core, 25, 1.0f);
+				AddBlock(this, menu, "antiram", "$ANTIRAM$", "Anti-Ram Hull", description, core, 25, 0.50f);
 			}
 			{ //Repulsor
 				description = "Explodes pushing blocks away. Can be triggered remotely or by impact. Activates in a chain.";
-				AddBlock(this, menu, "repulsor", "$REPULSOR$", "Repulsor", description, core, 35, 0.5f);
+				AddBlock(this, menu, "repulsor", "$REPULSOR$", "Repulsor", description, core, 25, 0.25f);
 			}
 			{ //Ram Hull
 				description = "A rigid block that fractures on contact with other blocks. Will destroy itself as well as the block it hits. Can effectively negate damage from bullets, flak, and to some extent cannons.";
-				AddBlock(this, menu, "ram", "$RAM$", "Ram Hull", description, core, 30, 1.5f, gameTime < WARMUP_TIME);
+				AddBlock(this, menu, "ram", "$RAM$", "Ram Hull", description, core, 35, 2.0f, gameTime < WARMUP_TIME);
 			}
 			if (!isStation)
 			{ //Auxilliary Core
 				description = "Similar to the Mothership core. Very powerful - gives greater independence to support ships. Can be improvised into a mega-yield explosive.";
-				AddBlock(this, menu, "secondarycore", "$SECONDARYCORE$", "Auxilliary Core", description, core, 650, 10.0f, gameTime < WARMUP_TIME);
+				AddBlock(this, menu, "secondarycore", "$SECONDARYCORE$", "Auxilliary Core", description, core, 600, 10.0f, gameTime < WARMUP_TIME);
 			}
 			{ //Bomb
 				description = "Explodes on contact. Very useful against Solid blocks.";
-				AddBlock(this, menu, "bomb", "$BOMB$", "Bomb", description, core, 30, 1.5f, gameTime < WARMUP_TIME);
+				AddBlock(this, menu, "bomb", "$BOMB$", "Bomb", description, core, 35, 1.0f, gameTime < WARMUP_TIME);
 			}
 		}
 		{ //Point Defense
 			description = "A short-ranged automated defensive turret that fires lasers with pin-point accuracy. Able to deter enemy personnel and neutralize incoming projectiles such as flak.\nAmmoCap: medium";
-			AddBlock(this, menu, "pointdefense", "$POINTDEFENSE$", "Point Defense", description, core, 150, 3.5f, gameTime < WARMUP_TIME);
+			AddBlock(this, menu, "pointdefense", "$POINTDEFENSE$", "Point Defense", description, core, 160, 3.5f, gameTime < WARMUP_TIME);
 		}
 		{ //Flak
 			description = "A long-ranged automated defensive turret that fires high-explosive fragmentation shells with a proximity fuse. Best used as an unarmored ship deterrent. Effective against missiles, engines, and cores.\nAmmoCap: medium";
-			AddBlock(this, menu, "flak", "$FLAK$", "Flak Cannon", description, core, 250, 3.5f, gameTime < WARMUP_TIME);
+			AddBlock(this, menu, "flak", "$FLAK$", "Flak Cannon", description, core, 175, 4.5f, gameTime < WARMUP_TIME);
 		}
 
 		if (!isMiniStation)
 		{
 			{ //Machinegun
 				description = "A fixed rapid-fire, lightweight, machinegun that fires high-velocity projectiles uncounterable by point defense. Effective against engines, flak cannons, and other weapons. However ineffectual against armour.\nAmmoCap: high";
-				AddBlock(this, menu, "machinegun", "$MACHINEGUN$", "Machinegun", description, core, 100, 3.0f, gameTime < WARMUP_TIME);
+				AddBlock(this, menu, "machinegun", "$MACHINEGUN$", "Machinegun", description, core, 125, 2.0f, gameTime < WARMUP_TIME);
 			}
 			{ //AP Cannon
 				description = "A fixed cannon that fires momentum-bearing armor-piercing shells. Can penetrate up to 2 solid blocks, but deals less damage after each penetration. Effective against engines, flak cannons, and other weapons.\nAmmoCap: medium";
-				AddBlock(this, menu, "cannon", "$CANNON$", "AP Cannon", description, core, 250, 4.25f, gameTime < WARMUP_TIME);
-			}
-			{ //Hyper Flak
-				description = "A flak cannon built to aggressive specifications. An advanced weapons system that must be manned. Comes standard with 2 ammunition types: Bulk-grade fragmentation shells ideal for engines and equipment OR Titanium break-wedge bombs to plough through ship armour.\nAmmoCap: medium";
-				AddBlock(this, menu, "hyperflak", "$HYPERFLAK$", "Hyper-Flak", description, core, 450, 5.0f, gameTime < WARMUP_TIME);
+				AddBlock(this, menu, "cannon", "$CANNON$", "AP Cannon", description, core, 250, 5.25f, gameTime < WARMUP_TIME);
 			}
 			{ //Missile Launcher
 				description = "A fixed tube that fires a slow missile with short-ranged guidance. Best used for close-ranged bombing, but can be used at range. Very effective against armored ships.\nAmmoCap: low";
-				AddBlock(this, menu, "launcher", "$LAUNCHER$", "Missile Launcher", description, core, 300, 4.5f, gameTime < WARMUP_TIME);
-			}
-			{ //Fake Ram Hull
-				description = "Sometimes the threat of ramming is an effective tool. Bought in 3s for quick construction.";
-				AddBlock(this, menu, "fakeram", "$RAM$", "Fake Ram Hull", description, core, 20, 0.5f);
+				AddBlock(this, menu, "launcher", "$LAUNCHER$", "Missile Launcher", description, core, 300, 5.5f, gameTime < WARMUP_TIME);
 			}
 			{ //Decoy Core
 				description = "A fake core to fool enemies.\nLimit of 3 per team per match. Currently bought: " + rules.get_u8("decoyCoreCount" + this.getTeamNum()) + "/3";
-				CGridButton@ button = AddBlock(this, menu, "decoycore", "$DECOYCORE$", "Decoy Core", description, core, 125, 5.0f);
+				CGridButton@ button = AddBlock(this, menu, "decoycore", "$DECOYCORE$", "Decoy Core", description, core, 150, 6.0f);
 				button.SetEnabled(rules.get_u8("decoyCoreCount" + this.getTeamNum()) < 3);
 			}
 		}
