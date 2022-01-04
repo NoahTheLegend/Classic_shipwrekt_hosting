@@ -96,18 +96,13 @@ void onRender(CRules@ this)
 		Vec2f tlBox = Vec2f(sWidth/2 - imageSize.x - boxMargin,  Maths::Max( 10.0f, sHeight/2 - imageSize.y - infoSize.y/2 - boxMargin));
 		Vec2f brBox = Vec2f(sWidth/2 + imageSize.x + boxMargin, sHeight/2 + imageSize.y + infoSize.y/2);
 		
-		string lastChangesInfo = "Shiprekt Version 1.44\n"
+		string lastChangesInfo = "Shiprekt Version 1.44.2\n"
 		
 		+ "Last changes :\n"
-		+ "- 12-16-2021 - v1.43 By GoldenGuy\n"
-		+ "  * True spectator mode is now available.\n"
-		+ "  * Respawn timer added.\n"
-		+ "  * You can become a shark by holding [" +use_key +" ] on your mothership core.\n"
-		+ "- 12-16-2021 - By Gingerbeard\n"
-		+ "  * Better effects, new particles.\n"
-		+ "- 12-13-2021 - v1.41\n"
-		+ "  * Added kill messages.\n"
-		+ "  * Bomb blocks will give booty if an enemy was hit.\n";
+		+ "  * Blocks cost / weight changes (armour buff) - Noah \n"
+		+ "  * Weapons nerfed in ammo capacity and ammo restock - Noah \n"
+		+ "  * Repulsors are now infinite on use (cd15 sec) - Noah \n"
+		+ "  * Big thanks to Gingerbeard for motivating and being a good person to me and this mod as a dev";
 
 		Vec2f lastChangesSize;
 		GUI::GetTextDimensions(lastChangesInfo, lastChangesSize);
