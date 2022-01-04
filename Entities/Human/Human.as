@@ -539,7 +539,7 @@ void BuildShopMenu(CBlob@ this, CBlob@ core, string desc, Vec2f offset, bool isS
 			}
 			{ //Ram Hull
 				description = "A rigid block that fractures on contact with other blocks. Will destroy itself as well as the block it hits. Can effectively negate damage from bullets, flak, and to some extent cannons.";
-				AddBlock(this, menu, "ram", "$RAM$", "Ram Hull", description, core, 35, 2.0f, gameTime < WARMUP_TIME);
+				AddBlock(this, menu, "ram", "$RAM$", "Ram Hull", description, core, 50, 2.0f, gameTime < WARMUP_TIME);
 			}
 			if (!isStation)
 			{ //Auxilliary Core
@@ -568,7 +568,7 @@ void BuildShopMenu(CBlob@ this, CBlob@ core, string desc, Vec2f offset, bool isS
 			}
 			{ //AP Cannon
 				description = "A fixed cannon that fires momentum-bearing armor-piercing shells. Can penetrate up to 2 solid blocks, but deals less damage after each penetration. Effective against engines, flak cannons, and other weapons.\nAmmoCap: medium";
-				AddBlock(this, menu, "cannon", "$CANNON$", "AP Cannon", description, core, 250, 5.25f, gameTime < WARMUP_TIME);
+				AddBlock(this, menu, "cannon", "$CANNON$", "AP Cannon", description, core, 200, 4.25f, gameTime < WARMUP_TIME);
 			}
 			{ //Missile Launcher
 				description = "A fixed tube that fires a slow missile with short-ranged guidance. Best used for close-ranged bombing, but can be used at range. Very effective against armored ships.\nAmmoCap: low";

@@ -6,9 +6,9 @@
 #include "AccurateSoundPlay.as";
 
 const int FIRE_RATE = 45;
-const f32 harpoon_grapple_length = 300.0f;
+const f32 harpoon_grapple_length = 350.0f;
 const f32 harpoon_grapple_slack = 16.0f;
-const f32 harpoon_grapple_throw_speed = 20.0f;
+const f32 harpoon_grapple_throw_speed = 50.0f;
 
 const f32 harpoon_grapple_force = 2.0f;
 const f32 harpoon_grapple_accel_limit = 1.5f;

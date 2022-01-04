@@ -11,10 +11,10 @@
 const u16 BASE_KILL_REWARD = 275;
 const f32 HEAL_AMMOUNT = 0.1f;
 const f32 HEAL_RADIUS = 16.0f;
-const u16 SELF_DESTRUCT_TIME = 8 * 30;
+const u16 SELF_DESTRUCT_TIME = 5 * 30;
 const f32 BLAST_RADIUS = 25 * 8.0f;
-const u8 MAX_TEAM_FLAKS = 100;
-const u8 MAX_TOTAL_FLAKS = 1000;
+const u8 MAX_TEAM_FLAKS = 25;
+const u8 MAX_TOTAL_FLAKS = 200;
 
 void onInit(CBlob@ this)
 {
@@ -24,7 +24,7 @@ void onInit(CBlob@ this)
 	this.addCommandID("turnShark");
 	this.addCommandID("turnHuman");
 	
-	this.set_f32("weight", 12.0f);
+	this.set_f32("weight", 10.0f);
 
 	if (isServer())
 	{
@@ -326,7 +326,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 				{
 					CPlayer@ player = getPlayer(i);
 					u8 teamNum = player.getTeamNum();
-					if (teamNum == hitterTeamNum)//winning tam
+					if (teamNum == hitterTeamNum)//winning team
 					{
 						string name = player.getUsername();
 						server_addPlayerBooty(name, (name == captainName ? 2 * reward : reward));

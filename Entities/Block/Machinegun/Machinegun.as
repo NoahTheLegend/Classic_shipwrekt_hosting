@@ -6,30 +6,30 @@
 #include "Hitters.as";
 #include "ParticleSparks.as";
 
-const f32 BULLET_SPREAD = 2.5f;
-const f32 BULLET_RANGE = 275.0F;
-const f32 MIN_FIRE_PAUSE = 2.75f; //min wait between shots
-const f32 MAX_FIRE_PAUSE = 8.0f; //max wait between shots
-const f32 FIRE_PAUSE_RATE = 0.08f; //higher values = higher recover
+const f32 BULLET_SPREAD = 3.0f;
+const f32 BULLET_RANGE = 200.0F;
+const f32 MIN_FIRE_PAUSE = 6.0f; //min wait between shots
+const f32 MAX_FIRE_PAUSE = 10.0f; //max wait between shots
+const f32 FIRE_PAUSE_RATE = 0.5f; //higher values = higher recover
 
 // Max amount of ammunition
-const uint8 MAX_AMMO = 250;
+const uint8 MAX_AMMO = 80;
 
 // Amount of ammunition to refill when
 // connected to motherships and stations
-const uint8 REFILL_AMOUNT = 30;
+const uint8 REFILL_AMOUNT = 40;
 
 // How often to refill when connected
 // to motherships and stations
-const uint8 REFILL_SECONDS = 1;
+const uint8 REFILL_SECONDS = 20;
 
 // How often to refill when connected
 // to secondary cores
-const uint8 REFILL_SECONDARY_CORE_SECONDS = 1;
+const uint8 REFILL_SECONDARY_CORE_SECONDS = 20;
 
 // Amount of ammunition to refill when
 // connected to secondary cores
-const uint8 REFILL_SECONDARY_CORE_AMOUNT = 4;
+const uint8 REFILL_SECONDARY_CORE_AMOUNT = 40;
 
 Random _shotspreadrandom(0x11598); //clientside
 

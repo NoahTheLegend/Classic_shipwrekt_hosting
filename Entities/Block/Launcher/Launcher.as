@@ -6,7 +6,7 @@ const f32 BULLET_SPEED = 3.0f;
 const int FIRE_RATE = 200;
 
 // Max amount of ammunition
-const uint8 MAX_AMMO = 8;
+const uint8 MAX_AMMO = 1;
 
 // Amount of ammunition to refill when
 // connected to motherships and stations
@@ -14,11 +14,11 @@ const uint8 REFILL_AMOUNT = 1;
 
 // How often to refill when connected
 // to motherships and stations
-const uint8 REFILL_SECONDS = 2;
+const uint8 REFILL_SECONDS = 17.5;
 
 // How often to refill when connected
 // to secondary cores
-const uint8 REFILL_SECONDARY_CORE_SECONDS = 14;
+const uint8 REFILL_SECONDARY_CORE_SECONDS = 17.5;
 
 // Amount of ammunition to refill when
 // connected to secondary cores

@@ -13,7 +13,7 @@ const uint8 MAX_AMMO = 30;
 
 // Amount of ammunition to refill when
 // connected to motherships and stations
-const uint8 REFILL_AMOUNT = 10;
+const uint8 REFILL_AMOUNT = 1;
 
 // How often to refill when connected
 // to motherships and stations
@@ -21,7 +21,7 @@ const uint8 REFILL_SECONDS = 1;
 
 // How often to refill when connected
 // to secondary cores
-const uint8 REFILL_SECONDARY_CORE_SECONDS = 10;
+const uint8 REFILL_SECONDARY_CORE_SECONDS = 1;
 
 // Amount of ammunition to refill when
 // connected to secondary cores

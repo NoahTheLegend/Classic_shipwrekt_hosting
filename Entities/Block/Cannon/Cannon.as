@@ -2,12 +2,12 @@
 #include "AccurateSoundPlay.as";
 #include "ParticleSparks.as";
 
-const f32 PROJECTILE_RANGE = 375.0F;
-const f32 PROJECTILE_SPEED = 15.0f;;
-const u16 FIRE_RATE = 170;//max wait between shots
+const f32 PROJECTILE_RANGE = 350.0F;
+const f32 PROJECTILE_SPEED = 17.5f;;
+const u16 FIRE_RATE = 500;//max wait between shots
 
 // Max amount of ammunition
-const uint8 MAX_AMMO = 12;
+const uint8 MAX_AMMO = 9;
 
 // Amount of ammunition to refill when
 // connected to motherships and stations
@@ -15,15 +15,15 @@ const uint8 REFILL_AMOUNT = 3;
 
 // How often to refill when connected
 // to motherships and stations
-const uint8 REFILL_SECONDS = 2;
+const uint8 REFILL_SECONDS = 25;
 
 // How often to refill when connected
 // to secondary cores
-const uint8 REFILL_SECONDARY_CORE_SECONDS = 12;
+const uint8 REFILL_SECONDARY_CORE_SECONDS = 25;
 
 // Amount of ammunition to refill when
 // connected to secondary cores
-const uint8 REFILL_SECONDARY_CORE_AMOUNT = 1;
+const uint8 REFILL_SECONDARY_CORE_AMOUNT = 3;
 
 Random _shotrandom(0x15125); //clientside
 
@@ -34,8 +34,8 @@ void onInit(CBlob@ this)
 	this.Tag("usesAmmo");
 	this.Tag("fixed_gun");
 	
-	this.set_u16("cost", 250);
-	this.set_f32("weight", 3.25f);
+	this.set_u16("cost", 200);
+	this.set_f32("weight", 4.25f);
 	
 	this.addCommandID("fire");
 
