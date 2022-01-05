@@ -564,7 +564,7 @@ void BuildShopMenu(CBlob@ this, CBlob@ core, string desc, Vec2f offset, bool isS
 		{
 			{ //Machinegun
 				description = "A fixed rapid-fire, lightweight, machinegun that fires high-velocity projectiles uncounterable by point defense. Effective against engines, flak cannons, and other weapons. However ineffectual against armour.\nAmmoCap: high";
-				AddBlock(this, menu, "machinegun", "$MACHINEGUN$", "Machinegun", description, core, 125, 2.0f, gameTime < WARMUP_TIME);
+				AddBlock(this, menu, "machinegun", "$MACHINEGUN$", "Machinegun", description, core, 150, 1.75f, gameTime < WARMUP_TIME);
 			}
 			{ //AP Cannon
 				description = "A fixed cannon that fires momentum-bearing armor-piercing shells. Can penetrate up to 2 solid blocks, but deals less damage after each penetration. Effective against engines, flak cannons, and other weapons.\nAmmoCap: medium";
