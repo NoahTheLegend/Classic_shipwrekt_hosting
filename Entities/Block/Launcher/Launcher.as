@@ -14,11 +14,11 @@ const uint8 REFILL_AMOUNT = 1;
 
 // How often to refill when connected
 // to motherships and stations
-const uint8 REFILL_SECONDS = 17.5;
+const uint8 REFILL_SECONDS = 25;
 
 // How often to refill when connected
 // to secondary cores
-const uint8 REFILL_SECONDARY_CORE_SECONDS = 17.5;
+const uint8 REFILL_SECONDARY_CORE_SECONDS = 25;
 
 // Amount of ammunition to refill when
 // connected to secondary cores
@@ -33,7 +33,7 @@ void onInit(CBlob@ this)
 	this.Tag("machinegun"); //for seat.as
 	
 	this.set_u16("cost", 300);
-	this.set_f32("weight", 4.5f);
+	this.set_f32("weight", 7.5f);
 	
 	this.addCommandID("fire");
 

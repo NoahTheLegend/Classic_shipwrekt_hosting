@@ -4,7 +4,7 @@
 
 const f32 PROJECTILE_SPEED = 9.0f;
 const f32 PROJECTILE_SPREAD = 2.25;
-const int FIRE_RATE = 60;
+const int FIRE_RATE = 90;
 const f32 PROJECTILE_RANGE = 450.0f;
 const f32 CLONE_RADIUS = 20.0f;
 const f32 AUTO_RADIUS = 400.0f;
@@ -18,11 +18,11 @@ const uint8 REFILL_AMOUNT = 4;
 
 // How often to refill when connected
 // to motherships and stations
-const uint8 REFILL_SECONDS = 12.5;
+const uint8 REFILL_SECONDS = 20;
 
 // How often to refill when connected
 // to secondary cores
-const uint8 REFILL_SECONDARY_CORE_SECONDS = 12.5;
+const uint8 REFILL_SECONDARY_CORE_SECONDS = 20;
 
 // Amount of ammunition to refill when
 // connected to secondary cores
