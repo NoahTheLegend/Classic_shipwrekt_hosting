@@ -625,7 +625,7 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 	
 	CSpriteLayer@ layer = this.getSprite().getSpriteLayer("harpoon");
 	
-    if ((harpoon.grapple_pos - caller.getPosition()).getLength() > 16.0f || this.getShape().getVars().customData <= 0)
+    if ((harpoon.grapple_pos - caller.getPosition()).getLength() > 12.0f || this.getShape().getVars().customData <= 0)
         return;
 
     if (harpoon.grapple_id != 0xffff && harpoon.grapple_id != 0 && !layer.isAnimation("set"))
