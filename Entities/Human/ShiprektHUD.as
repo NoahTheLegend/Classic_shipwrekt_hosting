@@ -272,7 +272,7 @@ void DrawStationStatus(CBlob@ station, Vec2f tl, CControls@ controls)
 			teamStationCount++;
 	}
 
-	GUI::DrawText(teamStationCount + "/" + totalStationCount + " (+"+teamStationCount*4+")", tl + Vec2f(246, 6), col);
+	GUI::DrawText(teamStationCount + "/" + totalStationCount + " (+"+teamStationCount*6+")", tl + Vec2f(246, 6), col);
 	
 	//GUI buttons text/function
 	if ((controls.getMouseScreenPos() - (tl + Vec2f(-98, 20))).Length() < 15.0f)
@@ -308,7 +308,7 @@ void DrawMiniStationStatus(CBlob@ ministation, Vec2f tl, CControls@ controls)
 			teamMiniStationCount++;
 	}
 
-	GUI::DrawText( teamMiniStationCount + "/" + totalMiniStationCount + " (+"+teamMiniStationCount+")", tl + Vec2f(246, 18), col);
+	GUI::DrawText( teamMiniStationCount + "/" + totalMiniStationCount + " (+"+teamMiniStationCount*3+")", tl + Vec2f(246, 18), col);
 	
 	//GUI buttons text/function
 	if ((controls.getMouseScreenPos() - (tl + Vec2f(-98, 20))).Length() < 15.0f)

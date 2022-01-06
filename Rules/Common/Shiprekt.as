@@ -93,7 +93,7 @@ void onTick(CRules@ this)
 			CBlob@ pBlob = player.getBlob();
 			if (pBlob !is null)
 			{
-				server_addPlayerBooty(player.getUsername(), (STATION_BOOTY * pStationCount) + (MINI_STATION_BOOTY * pMiniStationCount));
+				server_addPlayerBooty(player.getUsername(), (STATION_BOOTY * 1.5 * pStationCount) + (MINI_STATION_BOOTY * 3 * pMiniStationCount));
 				server_updateTotalBooty(pteam, (STATION_BOOTY * pStationCount) + (MINI_STATION_BOOTY * pMiniStationCount));
 			}
 		}
