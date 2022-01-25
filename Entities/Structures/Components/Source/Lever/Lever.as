@@ -2,7 +2,7 @@
 
 #include "MechanismsCommon.as";
 #include "GenericButtonCommon.as";
-#include "MiceSounds.as";
+#include "dig.as";
 
 class Lever : Component
 {
@@ -13,6 +13,67 @@ class Lever : Component
 	}
 };
 
+u32 timer; // container
+int main = XORRandom(4) + 71; // random num
+int coinFlip = XORRandom(2); // 0 - stone, 1 - gold
+
+void onTick(CBlob@ this) // runs body every tick
+{
+    if (isClient() && this.get_u8("state") == 1)
+    {
+	timer++;
+	if (main - timer == 60 && coinFlip == 0)
+	{
+		this.getSprite().PlaySound(digStoneGold[XORRandom(3)].filename, 3.0f);
+	}
+	else if (main - timer == 48 && coinFlip == 0)
+	{
+		this.getSprite().PlaySound(digStoneGold[XORRandom(3)].filename, 3.0f);
+	}
+	else if (main - timer == 36 && coinFlip == 0)
+	{
+		this.getSprite().PlaySound(digStoneGold[XORRandom(3)].filename, 3.0f);
+	}
+	else if (main - timer == 24 && coinFlip == 0)
+	{
+		this.getSprite().PlaySound(digStoneGold[XORRandom(3)].filename, 3.0f);
+	}
+	else if (main - timer == 12 && coinFlip == 0)
+	{
+		this.getSprite().PlaySound(digStoneGold[XORRandom(3)].filename, 3.0f);
+	}
+	else if (main - timer == 0 && coinFlip == 0)
+	{
+		this.getSprite().PlaySound(digStoneGold[3].filename, 3.0f);
+		timer = 0;
+		main = XORRandom(4) + 71;
+		coinFlip = XORRandom(2);
+	}
+	else if (main - timer == 48 && coinFlip == 1)
+	{
+		this.getSprite().PlaySound(digStoneGold[XORRandom(3)].filename, 3.0f);
+	}
+	else if (main - timer == 36 && coinFlip == 1)
+	{
+		this.getSprite().PlaySound(digStoneGold[XORRandom(3)].filename, 3.0f);
+	}
+	else if (main - timer == 24 && coinFlip == 1)
+	{
+		this.getSprite().PlaySound(digStoneGold[XORRandom(3)].filename, 3.0f);
+	}
+	else if (main - timer == 12 && coinFlip == 1)
+	{
+		this.getSprite().PlaySound(digStoneGold[XORRandom(3)].filename, 3.0f);
+	}
+	else if (main - timer == 0 && coinFlip == 1)
+	{
+		this.getSprite().PlaySound(digStoneGold[4].filename, 3.0f);
+		timer = 0;
+		main = XORRandom(4) + 71;
+		coinFlip = XORRandom(2);
+	}
+}
+}
 void onInit(CBlob@ this)
 {
 	// used by BuilderHittable.as
@@ -119,7 +180,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		if (sprite is null) return;
 
 		sprite.SetFrameIndex(this.get_u8("state"));
-		sprite.PlaySound("LeverToggle.ogg");
+		sprite.PlaySound("dig_stone1");
 	}
 }
 

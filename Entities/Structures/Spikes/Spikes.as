@@ -228,7 +228,7 @@ void onTick(CBlob@ this)
 						if (canStab(b)) //even hurts team when stabbing
 						{
 							// hurt?
-							if (this.isOverlapping(b))
+							if (this.isOverlapping(b) && this.getName() != "minerrat")
 							{
 								this.server_Hit(b, pos, b.getVelocity() * -1, 0.5f, Hitters::spikes, true);
 							}

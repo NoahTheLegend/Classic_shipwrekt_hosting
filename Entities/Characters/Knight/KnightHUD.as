@@ -1,4 +1,6 @@
 //knight HUD
+
+#include "Dash.as"
 #include "/Entities/Common/GUI/ActorHUDStartPos.as";
 
 const string iconsFilename = "Entities/Characters/Knight/KnightIcons.png";
@@ -37,6 +39,8 @@ void onRender(CSprite@ this)
 	CBlob@ blob = this.getBlob();
 	ManageCursors(blob);
 
+    const u32 gametime = getGameTime();
+
 	if (g_videorecording)
 		return;
 
@@ -65,5 +69,24 @@ void onRender(CSprite@ this)
 
 	// draw class icon
 
-	GUI::DrawIcon(iconsFilename, frame, Vec2f(16, 32), tl + Vec2f(8 + (slotsSize - 1) * 40, -16), 1.0f, player.getTeamNum());
+	GUI::DrawIcon(iconsFilename, frame, Vec2f(16, 32), tl + Vec2f(8 + (slotsSize - 1) * 40, -16), 1.0f);
+
+     //Dash icon
+	u32 lastDash = blob.get_u32("last dash");
+	int diff = gametime - (lastDash + DASH_FREQUENCY);
+	double cooldownDashSecs = (diff / 30) * (-1);
+	int cooldownDashFullSecs = diff % 30;
+	double cooldownDashSecsHUD;
+	if (cooldownDashFullSecs == 0 && cooldownDashSecs >= 0) cooldownDashSecsHUD = cooldownDashSecs;
+	
+	if (diff > 0)
+	{
+		GUI::DrawIcon( "Dash.png", 0, Vec2f(16,16), Vec2f(11,158));
+		GUI::SetFont("menu"); GUI::DrawText("  R button", Vec2f(25,175), SColor(255, 255, 216, 0));
+	}
+	else
+	{
+		GUI::DrawIcon( "MenuItems.png", 13, Vec2f(32,32), Vec2f(10,158), 0.5f);
+		GUI::SetFont("menu"); GUI::DrawText("" + cooldownDashSecs + "  R button", Vec2f(25,175), SColor(255, 255, 216, 0));
+	}
 }

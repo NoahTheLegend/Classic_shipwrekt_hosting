@@ -102,6 +102,11 @@ void onInit(CBlob@ this)
 
 	this.getCurrentScript().runFlags |= Script::tick_not_attached;
 	this.getCurrentScript().removeIfTag = "dead";
+
+	this.set_bool("ismining", false);
+	this.set_u32("mining", 0);
+	this.Untag("vslowed");
+	this.Tag("cat");
 }
 
 void onSetPlayer(CBlob@ this, CPlayer@ player)
@@ -110,6 +115,7 @@ void onSetPlayer(CBlob@ this, CPlayer@ player)
 	{
 		player.SetScoreboardVars("ScoreboardIcons.png", 3, Vec2f(16, 16));
 	}
+	this.Untag("vslowed");
 }
 
 
@@ -205,10 +211,14 @@ void RunStateMachine(CBlob@ this, KnightInfo@ knight, RunnerMoveVars@ moveVars)
 
 void onTick(CBlob@ this)
 {
-	if (this.getTeamNum() == 1) 
+	CRules @rules = getRules();
+	this.set_u32("miningg", this.get_u32("miningg") - 1);
+
+	if (this.get_u32("miningg") == 0)
 	{
-		this.server_setTeamNum(0);
+		this.set_bool("ismining", false);
 	}
+
 	bool knocked = isKnocked(this);
 	CHUD@ hud = getHUD();
 
@@ -224,20 +234,6 @@ void onTick(CBlob@ this)
 	if (!this.get("knightInfo", @knight))
 	{
 		return;
-	}
-
-	if (this != null)
-	{
-		CMap@ map = getMap();
-		Tile tile = map.getTile(this.getPosition());
-		if (map.isTileBackground(tile) == true)
-		{
-			knight.state = 0;
-			knight.swordTimer = 0;
-			knight.slideTime = 0;
-			knight.doubleslash = false;
-			this.set_s32("currentKnightState", 0);
-		}
 	}
 
 	if (this.isInInventory())
@@ -444,10 +440,15 @@ void onTick(CBlob@ this)
 		}
 	}
 
-	if (!swordState)
+	if (!swordState && getNet().isServer())
 	{
 		knight_clear_actor_limits(this);
 	}
+
+	if(this.get_u32("dash") >= 1) //lower the dash timer
+	{
+		this.set_u32("dash", this.get_u32("dash") - 1);
+	}	
 
 }
 
@@ -678,7 +679,7 @@ class ShieldSlideState : KnightState
 				return false;
 			}
 		}
-
+/*
 		ShieldMovement(moveVars);
 
 		Vec2f vel = this.getVelocity();
@@ -739,7 +740,7 @@ class ShieldSlideState : KnightState
 			}
 
 		}
-
+*/
 		return false;
 
 	}
@@ -1150,19 +1151,15 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			count++;
 			if (type >= bombTypeNames.length)
 				type = 0;
-			if (hasBombs(this, type))
+			if (this.getBlobCount(bombTypeNames[type]) > 0)
 			{
-				CycleToBombType(this, type);
+				this.set_u8("bomb type", type);
+				if (this.isMyPlayer())
+				{
+					Sound::Play("/CycleInventory.ogg");
+				}
 				break;
 			}
-		}
-	}
-	else if (cmd == this.getCommandID("switch"))
-	{
-		u8 type;
-		if (params.saferead_u8(type) && hasBombs(this, type))
-		{
-			CycleToBombType(this, type);
 		}
 	}
 	else if (cmd == this.getCommandID("activate/throw"))
@@ -1179,15 +1176,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 				break;
 			}
 		}
-	}
-}
-
-void CycleToBombType(CBlob@ this, u8 bombType)
-{
-	this.set_u8("bomb type", bombType);
-	if (this.isMyPlayer())
-	{
-		Sound::Play("/CycleInventory.ogg");
 	}
 }
 
@@ -1217,7 +1205,7 @@ void DoAttack(CBlob@ this, f32 damage, f32 aimangle, f32 arcdegrees, u8 type, in
 	Vec2f pos = blobPos - thinghy * 6.0f + vel + Vec2f(0, -2);
 	vel.Normalize();
 
-	f32 attack_distance = Maths::Min(DEFAULT_ATTACK_DISTANCE + Maths::Max(0.0f, 0.0f * this.getShape().vellen * (vel * thinghy)), MAX_ATTACK_DISTANCE);
+	f32 attack_distance = Maths::Min(DEFAULT_ATTACK_DISTANCE + Maths::Max(0.0f, 1.75f * this.getShape().vellen * (vel * thinghy)), MAX_ATTACK_DISTANCE);
 
 	f32 radius = this.getRadius();
 	CMap@ map = this.getMap();
@@ -1262,7 +1250,7 @@ void DoAttack(CBlob@ this, f32 damage, f32 aimangle, f32 arcdegrees, u8 type, in
 					continue;
 				}
 
-				f32 temp_damage = damage * 0;
+				f32 temp_damage = damage;
 
 				knight_add_actor_limit(this, b);
 				if (!dontHitMore && (b.getName() != "log" || !dontHitMoreLogs))
@@ -1301,7 +1289,105 @@ void DoAttack(CBlob@ this, f32 damage, f32 aimangle, f32 arcdegrees, u8 type, in
 					}
 				}
 			}
+			else  // hitmap
+				if (!dontHitMoreMap && (deltaInt == DELTA_BEGIN_ATTACK + 1))
+				{
+					bool goldblock = (hi.tile >= 448 && hi.tile < 456);
+					//bool fakeblock = (hi.tile == 456);
+					bool ground = map.isTileGround(hi.tile);
+					bool dirt_stone = map.isTileStone(hi.tile);
+					bool gold = map.isTileGold(hi.tile);
+					bool wood = map.isTileWood(hi.tile);
+					if (ground || wood || dirt_stone || gold || goldblock)// ||fakeblock)
+					{
+						Vec2f tpos = map.getTileWorldPosition(hi.tileOffset) + Vec2f(4, 4);
+						Vec2f offset = (tpos - blobPos);
+						f32 tileangle = offset.Angle();
+						f32 dif = Maths::Abs(exact_aimangle - tileangle);
+						if (dif > 180)
+							dif -= 360;
+						if (dif < -180)
+							dif += 360;
+
+						dif = Maths::Abs(dif);
+						//print("dif: "+dif);
+
+						if (dif < 20.0f)
+						{
+							//detect corner
+
+							int check_x = -(offset.x > 0 ? -1 : 1);
+							int check_y = -(offset.y > 0 ? -1 : 1);
+							if (map.isTileSolid(hi.hitpos - Vec2f(map.tilesize * check_x, 0)) &&
+							        map.isTileSolid(hi.hitpos - Vec2f(0, map.tilesize * check_y)))
+								continue;
+
+							bool canhit = true; //default true if not jab
+							if (jab) //fake damage
+							{
+								info.tileDestructionLimiter++;
+								if (!this.get_bool("ismining")) canhit = ((info.tileDestructionLimiter % ((wood || dirt_stone) ? 3 : 2)) == 0);
+								else canhit = true;
+							}
+							else //reset fake dmg for next time
+							{
+								info.tileDestructionLimiter = 0;
+							}
+
+							//dont dig through no build zones
+							canhit = canhit && map.getSectorAtPosition(tpos, "no build") is null;
+
+							dontHitMoreMap = true;
+							if (canhit)
+							{
+								map.server_DestroyTile(hi.hitpos, 0.1f, this);
+								if (gold)
+								{
+									// Note: 0.1f damage doesn't harvest anything I guess
+									// This puts it in inventory - include MaterialCommon
+									//Material::fromTile(this, hi.tile, 1.f);
+
+									CBlob@ ore = server_CreateBlobNoInit("mat_gold");
+									if (ore !is null)
+									{
+										ore.Tag('custom quantity');
+	     								ore.Init();
+	     								ore.setPosition(hi.hitpos);
+	     								ore.server_SetQuantity(4);
+	     							}
+								}
+							}
+						}
+					}
+				}
 		}
+	}
+
+	// destroy grass
+
+	if (((aimangle >= 0.0f && aimangle <= 180.0f) || damage > 1.0f) &&    // aiming down or slash
+	        (deltaInt == DELTA_BEGIN_ATTACK + 1)) // hit only once
+	{
+		f32 tilesize = map.tilesize;
+		int steps = Maths::Ceil(2 * radius / tilesize);
+		int sign = this.isFacingLeft() ? -1 : 1;
+
+		for (int y = 0; y < steps; y++)
+			for (int x = 0; x < steps; x++)
+			{
+				Vec2f tilepos = blobPos + Vec2f(x * tilesize * sign, y * tilesize);
+				TileType tile = map.getTile(tilepos).type;
+
+				if (map.isTileGrass(tile))
+				{
+					map.server_DestroyTile(tilepos, damage, this);
+
+					if (damage <= 1.0f)
+					{
+						return;
+					}
+				}
+			}
 	}
 }
 
@@ -1314,9 +1400,8 @@ bool isSliding(KnightInfo@ knight)
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1)
 {
-	// return if we collided with map, solid (door/platform), or something non-fleshy (like a boulder)
-	// allow shieldbashing enemy bombs so knights can "deflect" them
-	if (blob is null || !solid || (!blob.hasTag("flesh") && blob.getName() != "bomb") || this.getTeamNum() == blob.getTeamNum())
+	//return if we didn't collide or if it's teamie
+	if (blob is null || !solid || this.getTeamNum() == blob.getTeamNum())
 	{
 		return;
 	}
@@ -1338,7 +1423,6 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 		{
 			Vec2f pos = this.getPosition();
 			Vec2f vel = this.getOldVelocity();
-			f32 vellen = vel.getLength();
 			vel.Normalize();
 
 			//printf("nor " + vel * normal );
@@ -1348,29 +1432,12 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 				//printf("shi " + shieldVars.direction * normal );
 				if (shieldVars.direction * normal < 0.0f)
 				{
-					//print("" + vellen);
 					knight_add_actor_limit(this, blob);
 					this.server_Hit(blob, pos, vel, 0.0f, Hitters::shield);
 
 					Vec2f force = Vec2f(shieldVars.direction.x * this.getMass(), -this.getMass()) * 3.0f;
 
-					// scale knockback with knight's velocity
-
-					vellen = Maths::Min(vellen, 8.0f); // cap on velocity so enemies don't get launched too much
-
-					if (vellen < 3.5f)
-					{
-						// roughly the same weak knockback at low velocity
-						force *= Maths::Pow(vellen, 1.0f / 3.0f) / 2;
-					}
-					else
-					{
-						// scale linearly at higher velocity
-						force *= (vellen - 3.5f) / 6 + 0.759f;
-					}
-
 					blob.AddForce(force);
-					force *= 0.5f;
 					this.AddForce(Vec2f(-force.x, force.y));
 				}
 			}
@@ -1506,7 +1573,7 @@ void onCreateInventoryMenu(CBlob@ this, CBlob@ forBlob, CGridMenu @gridmenu)
 
 			if (button !is null)
 			{
-				bool enabled = hasBombs(this, i);
+				bool enabled = this.getBlobCount(bombTypeNames[i]) > 0;
 				button.SetEnabled(enabled);
 				button.selectOneOnClick = true;
 				if (weaponSel == i)
@@ -1575,14 +1642,13 @@ void onAddToInventory(CBlob@ this, CBlob@ blob)
 void SetFirstAvailableBomb(CBlob@ this)
 {
 	u8 type = 255;
-	u8 nowType = 255;
 	if (this.exists("bomb type"))
-		nowType = this.get_u8("bomb type");
+		type = this.get_u8("bomb type");
 
 	CInventory@ inv = this.getInventory();
 
-	bool typeReal = (uint(nowType) < bombTypeNames.length);
-	if (typeReal && inv.getItem(bombTypeNames[nowType]) !is null)
+	bool typeReal = (uint(type) < bombTypeNames.length);
+	if (typeReal && inv.getItem(bombTypeNames[type]) !is null)
 		return;
 
 	for (int i = 0; i < inv.getItemsCount(); i++)
@@ -1629,23 +1695,4 @@ bool canHit(CBlob@ this, CBlob@ b)
 
 	return b.getTeamNum() != this.getTeamNum();
 
-}
-
-void onRemoveFromInventory(CBlob@ this, CBlob@ blob)
-{
-	CheckSelectedBombRemovedFromInventory(this, blob);
-}
-
-void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
-{
-	CheckSelectedBombRemovedFromInventory(this, detached);
-}
-
-void CheckSelectedBombRemovedFromInventory(CBlob@ this, CBlob@ blob)
-{
-	string name = blob.getName();
-	if (bombTypeNames.find(name) > -1 && this.getBlobCount(name) == 0)
-	{
-		SetFirstAvailableBomb(this);
-	}
 }

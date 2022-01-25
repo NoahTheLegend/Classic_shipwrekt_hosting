@@ -23,16 +23,14 @@ namespace KnightStates
 
 namespace KnightVars
 {
-	const ::s32 resheath_cut_time = 2;
-	const ::s32 resheath_slash_time = 2;
-
-	const ::s32 slash_charge = 15;
-	const ::s32 slash_charge_level2 = 38;
-	const ::s32 slash_charge_limit = slash_charge_level2 + slash_charge + 10;
-	const ::s32 slash_move_time = 4;
-	const ::s32 slash_time = 13;
-	const ::s32 double_slash_time = 8;
-
+	s32 resheath_cut_time = 2;
+	s32 resheath_slash_time = 2;
+	s32 slash_charge = 15;
+	s32 slash_charge_level2 = 38;
+	s32 slash_charge_limit = slash_charge_level2 + slash_charge + 10;
+	s32 slash_move_time = 4;
+	s32 slash_time = 13;
+	s32 double_slash_time = 8;
 	const ::f32 slash_move_max_speed = 3.5f;
 
 	const u32 glide_down_time = 50;
@@ -94,10 +92,6 @@ const string[] bombTypeNames = { "mat_bombs",
                                  "mat_waterbombs"
                                };
 
-bool hasBombs(CBlob@ this, u8 bombType)
-{
-	return bombType < BombType::count && this.getBlobCount(bombTypeNames[bombType]) > 0;
-}
 
 //checking state stuff
 
