@@ -29,33 +29,52 @@ void onInit(CBlob@ this)
 
 void onTick(CBlob@ this)
 {
-	int prisonersq = 0;
-	for (int i = 0; i < getPlayersCount(); i++)
+	if (getGameTime() == 1)
 	{
-		if (getPlayer(i).getTeamNum() == 1 && getPlayer(i).getBlob() !is null) prisonersq++;
+		int prisonersq = 0;
+		for (int i = 0; i < getPlayersCount(); i++)
+		{
+			if (getPlayer(i).getTeamNum() == 1 && getPlayer(i).getBlob() !is null) prisonersq++;
+		}
+		this.set_u32("neededToEscape", prisonersq / 2);
 	}
-	this.set_u32("neededToEscape", prisonersq / 2);
-
 	CRules@ rules = getRules();
 
-	if (getPlayersCount() > 3 && getGameTime() < 300*30+10*30)
+	int prisonersleft = 0;
+	for (int i = 0; i < getPlayersCount(); i++)
+	{
+		if (getPlayer(i).getTeamNum() == 1 && getPlayer(i).getBlob() !is null) prisonersleft++;
+	}
+
+	if (getPlayersCount() > 3 && getGameTime() < 300*30+10*30 && prisonersleft != 0 && this.get_u32("escaped") != this.get_u32("neededToEscape") )
 	{
 		rules.SetGlobalMessage("Alive players amount needed to escape: {AMOUNT}\nEscaped players: {EAMOUNT}");
 		rules.AddGlobalMessageReplacement("AMOUNT", "" + this.get_u32("neededToEscape"));
 		rules.AddGlobalMessageReplacement("EAMOUNT", "" + this.get_u32("escaped"));
 	}
-
 	if (getGameTime() == 300*30+10*30 && this.get_u32("escaped") == 0) // game duration + warmuptime
 	{
 		rules.SetTeamWon(1);
 		rules.SetCurrentState(GAME_OVER);
-		rules.SetGlobalMessage("There are not enough escaped prisoners, guardians win the game!");
+		rules.SetGlobalMessage("There are no escaped prisoners, guardians win the game fairly!");
 	} 
-	else if (this.get_u32("escaped") >= this.get_u32("neededToEscape") && this.get_u32("neededToEscape") != 0 && getPlayersCount() > 3) 
+	else if (this.get_u32("escaped") == this.get_u32("neededToEscape") && this.get_u32("neededToEscape") != 0 && getPlayersCount() > 3)
 	{
 		rules.SetTeamWon(1);
 		rules.SetCurrentState(GAME_OVER);
-		rules.SetGlobalMessage("There are escaped prisoners left, they win the game!");
+		rules.SetGlobalMessage("There are enough prisoners escaped, they win the game!");
+	}
+	else if (this.get_u32("escaped") > 0 && this.get_u32("neededToEscape") != 0 && getPlayersCount() > 3 && getGameTime() == 300*30+10*30) 
+	{
+		rules.SetTeamWon(1);
+		rules.SetCurrentState(GAME_OVER);
+		rules.SetGlobalMessage("There are escaped prisoners left, its a tie!");
+	}
+	else if (this.get_u32("escaped") > 0 && this.get_u32("neededToEscape") != 0 && prisonersleft == 0) 
+	{
+		rules.SetTeamWon(1);
+		rules.SetCurrentState(GAME_OVER);
+		rules.SetGlobalMessage("There are escaped prisoners left, its a tie!");
 	}
 
 	if (enable_quickswap)
@@ -78,24 +97,25 @@ void onTick(CBlob@ this)
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 {
-	if (cmd == this.getCommandID("class menu"))
-	{
-		u16 callerID = params.read_u16();
-		CBlob@ caller = getBlobByNetworkID(callerID);
+    if (cmd == this.getCommandID("class menu"))
+    {
+        u16 callerID = params.read_u16();
+        CBlob@ caller = getBlobByNetworkID(callerID);
+        string classconfig = params.read_string();
 
-		if (caller !is null && caller.isMyPlayer() && caller.getTeamNum() == 1)
-		{
-			this.getSprite().PlaySound("/metal_stone.ogg");
-			this.set_u32("escaped", this.get_u32("escaped") + 1);
-			caller.Tag("escaped");
-			caller.server_Die();
-			server_CreateBlob('grandpa',0,Vec2f(caller.getPosition())).server_SetPlayer(caller.getPlayer());
-		}
-	}
-	else
-	{
-		onRespawnCommand(this, cmd, params);
-	}
+        if (caller !is null && caller.getTeamNum() == 1)
+        {
+            this.getSprite().PlaySound("/metal_stone.ogg");
+            this.set_u32("escaped", this.get_u32("escaped") + 1);
+            caller.Tag("escaped");
+            
+            caller.server_Die();
+        }
+    }
+    else
+    {
+        onRespawnCommand(this, cmd, params);
+    }
 }
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
@@ -104,9 +124,8 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 
 	if (canChangeClass(this, caller))
 	{
-		if (isInRadius(this, caller) && caller.getTeamNum() == 1 && !caller.hasTag("escaped"))
+		if (isInRadius(this, caller) && caller.getTeamNum() == 1 && !caller.hasTag("escaped") && getGameTime() > 10*30)
 		{
-
 			CBitStream params;
 			params.write_u16(caller.getNetworkID());
 			caller.CreateGenericButton("$change_class$", Vec2f(0, 6), this, this.getCommandID("class menu"), getTranslatedString("Escape!"), params);
