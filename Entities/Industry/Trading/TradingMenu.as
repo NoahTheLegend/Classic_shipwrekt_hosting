@@ -36,7 +36,7 @@ void onTick(CBlob@ this)
 		{
 			if (getPlayer(i).getTeamNum() == 1 && getPlayer(i).getBlob() !is null) prisonersq++;
 		}
-		this.set_u32("neededToEscape", prisonersq / 2);
+		this.set_u32("neededToEscape", prisonersq / 3);
 	}
 	CRules@ rules = getRules();
 
@@ -65,12 +65,6 @@ void onTick(CBlob@ this)
 		rules.SetGlobalMessage("There are enough prisoners escaped, they win the game!");
 	}
 	else if (this.get_u32("escaped") > 0 && this.get_u32("neededToEscape") != 0 && getPlayersCount() > 3 && getGameTime() == 300*30+10*30) 
-	{
-		rules.SetTeamWon(1);
-		rules.SetCurrentState(GAME_OVER);
-		rules.SetGlobalMessage("There are escaped prisoners left, its a tie!");
-	}
-	else if (this.get_u32("escaped") > 0 && this.get_u32("neededToEscape") != 0 && prisonersleft == 0) 
 	{
 		rules.SetTeamWon(1);
 		rules.SetCurrentState(GAME_OVER);
