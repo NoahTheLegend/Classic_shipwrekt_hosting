@@ -1,6 +1,5 @@
 // Builder logic
 
-#include "MiceSounds.as";
 #include "Hitters.as";
 #include "BuilderCommon.as";
 #include "ThrowCommon.as";
@@ -28,9 +27,6 @@ void onInit(CBlob@ this)
 	this.set("hitdata", hitdata);
 
 	this.addCommandID("pickaxe");
-	this.addCommandID("hitdata sync");
-
-    AddIconToken( "$Invisibility$", "Invisibility.png", Vec2f(16,16), 0 );
 
 	CShape@ shape = this.getShape();
 	shape.SetRotationsAllowed(false);
@@ -39,13 +35,10 @@ void onInit(CBlob@ this)
 	this.set_Vec2f("inventory offset", Vec2f(0.0f, 160.0f));
 
 	SetHelp(this, "help self action2", "builder", getTranslatedString("$Pick$Dig/Chop  $KEY_HOLD$$RMB$"), "", 3);
-    SetHelp( this, "help show", "builder", "$Invisibility$ Invisibility using B", "" );
 
 	this.getCurrentScript().runFlags |= Script::tick_not_attached;
 	this.getCurrentScript().removeIfTag = "dead";
-
-	this.set_bool("isslowed", false);
-	this.set_u32("sloww", 0);
+	this.Tag("prisoner");
 }
 
 void onSetPlayer(CBlob@ this, CPlayer@ player)
@@ -58,30 +51,6 @@ void onSetPlayer(CBlob@ this, CPlayer@ player)
 
 void onTick(CBlob@ this)
 {
-	CRules @rules = getRules();
-	if (this !is null && getGameTime() % 300 == 0 && getGameTime() > 50*30+140*30)
-	{
-		Sound::Play(squeak[XORRandom(squeak.length - 1)].filename, this.getPosition(), 1.5f, 1.0f);
-	}
-
-	this.set_u32("sloww", this.get_u32("sloww") - 1);
-
-	CSprite@ sprite = this.getSprite();
-	Animation@ animation_strike = sprite.getAnimation("strike");
-	Animation@ animation_chop = sprite.getAnimation("chop");
-
-	if (this.get_bool("isslowed") == false)
-	{
-		animation_strike.time = 2;
-		animation_chop.time = 2;
-	}
-	if (this.get_bool("isslowed"))
-	{
-		if (this.get_u32("sloww") == 0) this.set_bool("isslowed", false);
-		animation_strike.time = 3;
-		animation_chop.time = 3;
-	}
-
 	if (this.isInInventory())
 		return;
 
@@ -143,12 +112,6 @@ void onTick(CBlob@ this)
 			blob.server_Die();
 		}
 	}
-
-    if(this.get_u32("invisible") > 0) //lower the invisible timer
-	{
-		this.set_u32("invisible", this.get_u32("invisible") - 1);
-		this.Sync("invisible", true);
-	}	
 }
 
 void SendHitCommand(CBlob@ this, CBlob@ blob, const Vec2f tilepos, const Vec2f attackVel, const f32 attack_power)
@@ -239,15 +202,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			warn("error when recieving pickaxe command");
 		}
 	}
-	else if (cmd == this.getCommandID("hitdata sync") && !this.isMyPlayer())
-	{
-		HitData@ hitdata;
-		this.get("hitdata", @hitdata);
-
-		hitdata.tilepos = params.read_Vec2f();
-		hitdata.blobID = params.read_netid();
-	}
-	
 }
 
 //helper class to reduce function definition cancer
@@ -268,7 +222,7 @@ void Pickaxe(CBlob@ this)
 {
 	HitData@ hitdata;
 	CSprite @sprite = this.getSprite();
-	bool strikeAnim = sprite.isAnimation("strike") || sprite.isAnimation("chop");
+	bool strikeAnim = sprite.isAnimation("strike");
 
 	if (!strikeAnim)
 	{
@@ -304,12 +258,7 @@ void Pickaxe(CBlob@ this)
 		{
 			if (hitdata.blobID == 0)
 			{
-				TileType t = getMap().getTile(hitdata.tilepos).type;
-				if (t != CMap::tile_empty && t != CMap::tile_ground_back)
-				{
-					SendHitCommand(this, null, hitdata.tilepos, attackVel, hit_damage);
-				}
-
+				SendHitCommand(this, null, hitdata.tilepos, attackVel, hit_damage);
 			}
 			else
 			{
@@ -439,12 +388,6 @@ void Pickaxe(CBlob@ this)
 	{
 		hitdata.tilepos = tilepos;
 	}
-
-	CBitStream cbs;
-	cbs.write_Vec2f(hitdata.tilepos);
-	cbs.write_netid(hitdata.blobID);
-
-	this.SendCommand(this.getCommandID("hitdata sync"), cbs);
 }
 
 void SortHits(CBlob@ this, HitInfo@[]@ hitInfos, f32 damage, SortHitsParams@ p)
@@ -545,14 +488,17 @@ bool canHit(CBlob@ this, CBlob@ b, Vec2f tpos, bool extra = true)
 		if (b.isAttached())
 			return false;
 
-		if (BuilderAlwaysHit(b) || b.hasTag("dead") || b.hasTag("vehicle"))
+		//yes hitting corpses
+		if (b.hasTag("dead"))
 			return true;
 
-		if (b.getName() == "saw" || b.getName() == "trampoline")
-			return true;
+		//no hitting friendly mines (grif)
+		if (b.getName() == "mine")
+			return false;
 
-		return false;
-
+		//no hitting friendly living stuff
+		if (b.hasTag("flesh") || b.hasTag("player"))
+			return false;
 	}
 	//no hitting stuff in hands
 	else if (b.isAttached() && !b.hasTag("player"))
